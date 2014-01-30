@@ -2,11 +2,12 @@ var game = new Phaser.Game(1360, 768, Phaser.AUTO, '', { preload: preload, creat
 
 function preload() {
  
-    game.load.image("player", "assets/player.png");
+    //game.load.image("player", "assets/player.png");
     game.load.image("enemy", "assets/enemy.png");
     game.load.image("ground", "assets/ground.png");
     game.load.image("platform", "assets/platform.png");
     game.load.image("itemBigger", "assets/itemBigger.png");
+    game.load.spritesheet("playerSheet", "assets/playerSheet.png", 64, 128);
  
 }
 
@@ -22,6 +23,7 @@ var dashButton;
 var itemsGroup;
 var itemBigger;
 var playerIsBig;
+var playerIsDashing;
 
  
 function create() {
@@ -45,13 +47,18 @@ function create() {
     ground.body.immovable = true;
     
     // make the player a sprite
-    player = game.add.sprite(100,500, "player");
+    player = game.add.sprite(100,500, "playerSheet");
     // make the player collide with the bounds of the world
     player.body.collideWorldBounds = true;
     // add gravity to the player, so he falls down when in the air
     player.body.gravity.y = 25;
     // set the playerIsBig boolean to it's default false value
     playerIsBig = false;
+    // set the playerIsDashing boolean to it's default false value
+    playerIsDashing = false;
+    // create animation from the preloaded spritesheet for the player
+    player.animations.add("normal",[0,1],15, true);
+    player.animations.add("fast",[0,1],10,true);
     
     // make the enemy a sprite
     enemy = game.add.sprite(4000,500,"enemy");
@@ -118,25 +125,36 @@ function update() {
     
     // make the player stop when there's no input
     player.body.velocity.x = 0;
-    
+    // make the animation stop if the player doesn't move
+   
     
     
     // make the player move right when pressing the right cursor
-    if(cursors.right.isDown){
+    if(cursors.right.isDown && !dashButton.isDown){
         player.body.velocity.x = 250;
-        // make the player move faster when the dashButton is pressed
-        if(dashButton.isDown){
-            player.body.velocity.x = 400;
-        }
+        player.animations.play("normal");
+    }
+    
+    // make the player move faster when the dashButton is pressed
+    else if(cursors.right.isDown && dashButton.isDown){
+        player.body.velocity.x = 400;
+        player.animations.play("fast");
     }
     
     // make the player move left when pressing the left cursor
-    if(cursors.left.isDown){
+    else if(cursors.left.isDown && !dashButton.isDown){
         player.body.velocity.x = -250;
-        // make the player move faster when the dashButton is pressed
-        if(dashButton.isDown){
-            player.body.velocity.x = -400;
+            player.animations.play("normal");
         }
+        
+        // make the player move faster when the dashButton is pressed
+    else if(dashButton.isDown && dashButton.isDown){
+        player.body.velocity.x = -400;
+        player.animations.play("fast");
+    }
+    else{
+        player.animations.stop();
+        player.frame = 0;
     }
     
     // make the player jump if the jumpButton is pressed  
