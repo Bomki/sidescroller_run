@@ -148,7 +148,7 @@ function update() {
         }
         
         // make the player move faster when the dashButton is pressed
-    else if(dashButton.isDown && dashButton.isDown){
+    else if(cursors.left.isDown && dashButton.isDown){
         player.body.velocity.x = -400;
         player.animations.play("fast");
     }
